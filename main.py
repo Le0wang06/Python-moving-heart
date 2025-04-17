@@ -26,12 +26,12 @@ def draw_heart():
     pen.speed(0)
     screen.tracer(0)
     
-    # Red color gradient
+    # Pink color gradient
     colors = [
-        "#FF0000",  # Pure red
-        "#FF3333",  # Lighter red
-        "#FF6666",  # Even lighter red
-        "#FF9999"   # Very light red
+        "#FF69B4",  # Hot Pink
+        "#FFB6C1",  # Light Pink
+        "#FFC0CB",  # Pink
+        "#FFCCD5"   # Soft Pink
     ]
     
     def draw_text_heart(angle):
