@@ -16,21 +16,37 @@ languages = [
     "Volim te", "Ek het jou lief", "Ndinokuda", "Ngikhuthanda", "Ngiyakuthanda"
 ]
 
-def create_heart_text():
-    # Set up the screen
-    screen = turtle.Screen()
-    screen.setup(1000, 800)
-    screen.bgcolor("black")
-    screen.title("Multilingual Love Heart")
-    screen.tracer(0)  # Disable automatic updates
-    
-    # Create and configure the turtle
-    text = turtle.Turtle()
-    text.hideturtle()
-    text.speed(0)
-    
-    # Pre-calculate heart points
-    def get_heart_points(size, num_points):
+class HeartAnimation:
+    def __init__(self):
+        # Initialize screen
+        self.screen = turtle.Screen()
+        self.screen.setup(1000, 800)
+        self.screen.bgcolor("black")
+        self.screen.title("Multilingual Love Heart")
+        self.screen.tracer(0)  # Disable automatic updates
+        
+        # Create main turtle for drawing
+        self.text = turtle.Turtle()
+        self.text.hideturtle()
+        self.text.speed(0)
+        
+        # Animation properties
+        self.angle = 0
+        self.heart_points = self.get_heart_points(10, len(languages))
+        self.frame_delay = 1/60  # Target 60 FPS
+        self.rotation_speed = 0.15
+        
+        # Color gradient for smooth transitions
+        self.colors = [
+            "#FF69B4", "#FF74B9", "#FF7FBE", "#FF8AC3",
+            "#FF95C8", "#FFA0CD", "#FFABD2", "#FFB6D7",
+            "#FFC1DC", "#FFCCE1", "#FFD7E6", "#FFE2EB",
+            "#FFEDFF", "#FFE2EB", "#FFD7E6", "#FFCCE1",
+            "#FFC1DC", "#FFB6D7", "#FFABD2", "#FFA0CD",
+            "#FF95C8", "#FF8AC3", "#FF7FBE", "#FF74B9"
+        ]
+        
+    def get_heart_points(self, size, num_points):
         points = []
         for i in range(num_points):
             t = i * 2 * math.pi / num_points
@@ -39,59 +55,61 @@ def create_heart_text():
             points.append((x, y))
         return points
     
-    # Define colors with smooth gradient
-    colors = [
-        "#FF1493", "#FF69B4", "#FFB6C1", "#FFC0CB",
-        "#FFD7E4", "#FFE4E1", "#FFFFFF", "#FFE4E1",
-        "#FFD7E4", "#FFC0CB", "#FFB6C1", "#FF69B4"
-    ]
-    
-    def draw_rotating_heart(angle, heart_points):
-        text.clear()
+    def draw_frame(self):
+        self.text.clear()
         
         # Pre-calculate rotation values
-        cos_angle = math.cos(math.radians(angle))
-        sin_angle = math.sin(math.radians(angle))
+        cos_angle = math.cos(math.radians(self.angle))
+        sin_angle = math.sin(math.radians(self.angle))
         
-        for i, (x, y) in enumerate(heart_points):
-            # Rotate point with smooth interpolation
+        # Draw each point
+        for i, (x, y) in enumerate(self.heart_points):
+            # Smooth rotation
             rotated_x = x * cos_angle - y * sin_angle
             rotated_y = x * sin_angle + y * cos_angle
             
-            text.up()
-            text.goto(rotated_x, rotated_y)
+            self.text.up()
+            self.text.goto(rotated_x, rotated_y)
             
-            # Smooth color transition
-            color_index = (i + int(angle / 15)) % len(colors)
-            text.color(colors[color_index])
+            # Get color with smooth transition
+            color_index = (i + int(self.angle / 2)) % len(self.colors)
+            self.text.color(self.colors[color_index])
             
-            # Calculate text angle for smooth orientation
+            # Calculate text orientation
             point_angle = math.degrees(math.atan2(rotated_y, rotated_x))
-            text.setheading(point_angle)
+            self.text.setheading(point_angle)
             
-            # Write text with anti-aliasing effect
-            text.write(languages[i], align="center", font=("Arial", 10, "normal"))
+            # Write text
+            self.text.write(languages[i], align="center", font=("Arial", 10, "normal"))
     
-    # Pre-calculate heart points with more density
-    heart_points = get_heart_points(10, len(languages))
-    angle = 0
-    
-    try:
-        while True:
-            draw_rotating_heart(angle, heart_points)
-            screen.update()
+    def animate(self):
+        try:
+            last_frame_time = time.time()
             
-            # Adjusted rotation speed and frame timing
-            angle += 0.15  # Slightly faster rotation
-            
-            if angle >= 360:
-                angle = 0
-            
-            # Shorter delay for higher frame rate
-            time.sleep(0.02)  # Increased frame rate (50 FPS)
-            
-    except turtle.Terminator:
-        pass
+            while True:
+                current_time = time.time()
+                elapsed = current_time - last_frame_time
+                
+                if elapsed >= self.frame_delay:
+                    # Update animation
+                    self.draw_frame()
+                    self.screen.update()
+                    
+                    # Update angle
+                    self.angle = (self.angle + self.rotation_speed) % 360
+                    
+                    # Update frame timing
+                    last_frame_time = current_time
+                else:
+                    # Small sleep to prevent CPU overload
+                    time.sleep(0.001)
+                    
+        except turtle.Terminator:
+            pass
+
+def main():
+    animation = HeartAnimation()
+    animation.animate()
 
 if __name__ == "__main__":
-    create_heart_text()
+    main()
